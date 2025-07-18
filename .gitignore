@@ -7,6 +7,11 @@
 *.pm.tdy
 *.bs
 
+*.vcd
+*.log
+*.out
+*.gtkw
+
 # Devel::Cover
 cover_db/
 
