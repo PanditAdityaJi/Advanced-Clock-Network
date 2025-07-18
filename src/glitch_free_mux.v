@@ -1,18 +1,23 @@
-module tb_glitch_free_mux;
-  logic clk0, clk1, sel, rst, clk_out;
-  glitch_free_mux u0 (.clk0(clk0), .clk1(clk1), .sel(sel), .rst(rst), .clk_out(clk_out));
+module glitch_free_mux(
+    input  logic clk0,
+    input  logic clk1,
+    input  logic sel,
+    input  logic rst,
+    output logic clk_out
+);
+    logic latch0, latch1;
 
-  initial begin
-    clk0 = 0; clk1 = 0; sel = 0; rst = 1;
-    #5 rst = 0;
-    forever #5 clk0 = ~clk0;
-  end
+    always_ff @(posedge clk0 or posedge rst) begin
+        if (rst) latch0 <= 0;
+        else if (!sel) latch0 <= 1;
+        else latch0 <= 0;
+    end
 
-  always #7 clk1 = ~clk1;
+    always_ff @(posedge clk1 or posedge rst) begin
+        if (rst) latch1 <= 0;
+        else if (sel) latch1 <= 1;
+        else latch1 <= 0;
+    end
 
-  initial begin
-    #30 sel = 1;
-    #40 sel = 0;
-    #100 $finish;
-  end
+    assign clk_out = (sel) ? (latch1 & clk1) : (latch0 & clk0);
 endmodule
